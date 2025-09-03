@@ -742,6 +742,20 @@ input {
   }
 }
 
+/* Simple heart pulse animation */
+@keyframes heart-pulse {
+  0%,
+  70%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  35% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
 /* Optimize text sizes for very small screens */
 @media (max-width: 375px) {
   .arcade-font {

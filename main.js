@@ -425,6 +425,12 @@ function startGame() {
     // Back button appears once game starts
     ensureBackButton();
 
+    // Hide footer when game starts
+    const footer = document.getElementById('game-footer');
+    if (footer) {
+        footer.style.display = 'none';
+    }
+
     // Pick random chance tiles spread roughly evenly across the board
     const indices = Array.from({ length: GAME_CONFIG.TILE_COUNT - 1 }, (_, k) => k + 2);
     const bucketSize = Math.floor((GAME_CONFIG.TILE_COUNT - 1) / PROBABILITIES.CHANCE_TILE_COUNT);
