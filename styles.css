@@ -1,0 +1,771 @@
+html,
+body {
+  height: 100%;
+}
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #0f172a; /* slate-900 */
+  color: #f1f5f9; /* slate-100 */
+  /* allow natural scroll if something overflows; we aim to size dynamically to avoid it */
+}
+.arcade-font {
+  font-family: "Press Start 2P", cursive;
+}
+.board {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  /* Responsive board that fills its column and keeps 1:1 aspect for 10x10 */
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  gap: clamp(2px, 0.8vw, 10px);
+  padding: clamp(6px, 1.1vw, 14px);
+  box-sizing: border-box;
+  background: #1e293b; /* slate-800 */
+  min-height: 400px; /* Ensure board has minimum height */
+  border-radius: 24px;
+  border: 4px solid #475569;
+  box-shadow: 0 0 20px rgba(71, 85, 105, 0.5), inset 0 0 15px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+.tile {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(9px, 1.1vw, 15px);
+  /* Fallback for browsers that don't support clamp */
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 12px;
+  /* Use normal flow so grid placement works; fill the grid cell */
+  position: relative;
+  width: 100%;
+  height: 100%;
+  color: #0f172a;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.25);
+}
+/* Progress overlay to visually indicate completion within a year (0..1) */
+/* Progress gradient is set inline per tile */
+.tile-year1 {
+  background-color: #a7f3d0;
+  border-color: #34d399;
+}
+.tile-year2 {
+  background-color: #86efac;
+  border-color: #22c55e;
+}
+.tile-year3 {
+  background-color: #f1e9a8;
+  border-color: #d4b44c;
+}
+.tile-year4 {
+  background-color: #c7d2fe;
+  border-color: #6366f1;
+}
+.tile-chance {
+  border-color: #f472b6;
+  box-shadow: 0 0 12px rgba(244, 114, 182, 0.6);
+}
+
+.tile-start {
+  background-color: #818cf8;
+  border-color: #6366f1;
+  color: white;
+  animation: pulse-start 2s infinite;
+}
+.tile-placement {
+  border-color: #facc15;
+  box-shadow: 0 0 15px #facc15;
+  animation: pulse-placement 1.5s infinite;
+}
+.tile-semester-end {
+  border-color: #a78bfa;
+  animation: pulse-sem-end 2.5s infinite;
+  background-color: #fef08a !important;
+  color: #000 !important;
+}
+
+@keyframes pulse-start {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px #818cf8;
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px #6366f1;
+  }
+}
+@keyframes pulse-placement {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+@keyframes pulse-sem-end {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.player-pawn {
+  width: var(--pawn-size, 64px);
+  height: var(--pawn-size, 64px);
+  /* Fallback for browsers that don't support CSS custom properties */
+  width: 64px;
+  height: 64px;
+  position: absolute;
+  transition: all 0.25s ease-in-out;
+  z-index: 10;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.7));
+}
+.player-pawn svg {
+  width: 70%;
+  height: 70%;
+}
+
+.icon-option {
+  border: 2px solid #64748b;
+  background: #334155;
+}
+.icon-option.selected {
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.4);
+  background: #1f2937;
+}
+.active-card {
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.5);
+  background: rgba(251, 191, 36, 0.06);
+}
+.active-card {
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.9),
+    0 0 18px rgba(251, 191, 36, 0.5) inset;
+  position: relative;
+  z-index: 1;
+}
+.lost-card {
+  filter: grayscale(1) blur(0.2px);
+  opacity: 0.5;
+  position: relative;
+}
+.lost-card::after {
+  content: "LOST";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  color: #f87171;
+  font-weight: 800;
+  font-size: 12px;
+  border: 2px solid #f87171;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.8);
+}
+.pawn-lost {
+  filter: grayscale(1) opacity(0.55);
+}
+/* hide scrollbars while keeping scroll functionality */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overflow: auto;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/* Right sidebar layout */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+/* Compact icon-only back button */
+#back-button {
+  width: clamp(28px, 6vw, 40px);
+  height: clamp(28px, 6vw, 40px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+/* Mobile/iPad layout constraints to keep board visible and sidebar readable */
+@media (max-width: 1024px) {
+  /* Board may be smaller than 60dvh, but never larger */
+  #board-col {
+    height: auto !important;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .board {
+    width: min(100%, 60dvh);
+    height: auto;
+  }
+  #sidebar-col {
+    height: 40dvh !important;
+    overflow: auto;
+  }
+  header {
+    margin-bottom: 8px;
+  }
+}
+@media (max-width: 640px) {
+  /* On phones ensure square fits within 60% of viewport height and available width */
+  #board-col {
+    height: auto !important;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  #sidebar-col {
+    height: 40dvh !important;
+  }
+  .board {
+    width: min(100%, 60dvh);
+    height: auto;
+    gap: clamp(1px, 1.6vw, 6px);
+    padding: clamp(4px, 1.2vw, 10px);
+  }
+  .tile {
+    font-size: clamp(9px, 2.8vw, 14px);
+    border-width: 2px;
+    border-radius: 10px;
+  }
+}
+
+#modal-backdrop {
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+#how-to-play-modal .prose {
+  font-family: "Inter", sans-serif;
+}
+#how-to-play-modal h3 {
+  font-family: "Press Start 2P", cursive;
+  color: #f59e0b; /* amber-500 */
+  margin-bottom: 0.5em;
+}
+#how-to-play-modal h4 {
+  font-family: "Press Start 2P", cursive;
+  color: #eab308; /* yellow-500 */
+  font-size: 0.9em;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+#how-to-play-modal ul,
+#how-to-play-modal ol {
+  margin-left: 1.5em;
+}
+#how-to-play-modal li {
+  margin-bottom: 0.5em;
+}
+#how-to-play-modal p {
+  line-height: 1.6;
+}
+#how-to-play-modal .prose::-webkit-scrollbar {
+  width: 8px;
+}
+#how-to-play-modal .prose::-webkit-scrollbar-track {
+  background: #1e293b; /* slate-800 */
+  border-radius: 10px;
+}
+#how-to-play-modal .prose::-webkit-scrollbar-thumb {
+  background: #f59e0b; /* amber-500 */
+  border-radius: 10px;
+}
+#how-to-play-modal .prose::-webkit-scrollbar-thumb:hover {
+  background: #fbbf24; /* amber-400 */
+}
+.modal-content {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.3s ease;
+  position: relative;
+  padding-top: 0;
+}
+
+/* Only heart +/- uses this pop; other animations are minimal */
+.gpa-change-anim {
+  animation: none;
+}
+.heart-change-anim {
+  animation: gpa-pop 0.7s ease-out;
+}
+.indicator-pop {
+  animation: gpa-pop 0.6s ease-out;
+}
+@keyframes gpa-pop {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-30px) scale(1.2);
+    opacity: 0;
+  }
+}
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+  }
+  100% {
+    transform: translateY(110vh) rotate(720deg);
+  }
+}
+/* Dice loading animation */
+.dice-spin {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dice-spin span {
+  width: 6px;
+  height: 6px;
+  background: #0f172a;
+  border-radius: 2px;
+  animation: dicePulse 0.5s infinite ease-in-out;
+}
+.dice-spin span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.dice-spin span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+@keyframes dicePulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 1;
+  }
+}
+/* Flying squad magnifier scan */
+.magnify-scan {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.magnify-scan .glass {
+  font-size: 28px;
+  animation: scan 1s linear infinite alternate;
+}
+@keyframes scan {
+  from {
+    transform: translateX(-10px) rotate(0deg);
+  }
+  to {
+    transform: translateX(10px) rotate(8deg);
+  }
+}
+/* Toast */
+#toast {
+  position: fixed;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  color: #f1f5f9;
+  border: 2px solid #fbbf24;
+  padding: 10px 14px;
+  border-radius: 10px;
+  z-index: 70;
+  transition: bottom 0.3s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+#toast.show {
+  bottom: 24px;
+}
+#modal-emoji {
+  animation: none;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  position: absolute;
+  /* Sit just above the modal card with a small gap */
+  top: calc(50% - min(240px, 42vh) - 18px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  border: 4px solid #fbbf24;
+  border-radius: 9999px;
+  padding: 2px 8px;
+  z-index: 2;
+  font-size: clamp(22px, 6vw, 38px);
+}
+
+.spicy-mode .board {
+  background: #2d0f0f;
+  border-color: #ff6b6b;
+  box-shadow: 0 0 30px rgba(255, 107, 107, 0.7),
+    inset 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+.spicy-mode .tile-year1 {
+  background-color: #ffdddd;
+  border-color: #ff8a8a;
+}
+.spicy-mode .tile-year2 {
+  background-color: #ffcccc;
+  border-color: #ff7070;
+}
+.spicy-mode .tile-year3 {
+  background-color: #ffbbbb;
+  border-color: #ff5555;
+}
+.spicy-mode .tile-year4 {
+  background-color: #ffaaaa;
+  border-color: #ff4040;
+}
+.spicy-mode .tile-start {
+  background-color: #ff4d4d;
+  border-color: #ff0000;
+}
+.spicy-mode .tile-placement {
+  border-color: #ffcc00;
+  box-shadow: 0 0 15px #ffcc00;
+}
+.spicy-mode .tile-semester-end {
+  border-color: #ff8c00;
+}
+.spicy-mode .tile-semester-end {
+  background-color: #ffd1a1 !important;
+  color: #000 !important;
+}
+
+/* Player card emoji sizing and overflow control */
+.player-card-emoji {
+  font-size: clamp(14px, 4.5vw, 22px);
+  line-height: 1;
+  display: inline-block;
+}
+.player-gpa-value {
+  font-size: clamp(16px, 5vw, 24px);
+}
+.player-card-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+  overflow: hidden;
+  padding-top: 2px;
+}
+.meta-emoji {
+  font-size: clamp(12px, 4vw, 18px);
+}
+.meta-num {
+  font-size: clamp(12px, 4.2vw, 16px);
+}
+
+/* Mobile fullscreen layout optimizations */
+.mobile-fullscreen #game-area > .grid {
+  grid-template-columns: 1fr !important;
+}
+.mobile-fullscreen .board {
+  height: 60vh !important;
+}
+.mobile-fullscreen #player-info-cards {
+  max-height: 38vh !important;
+}
+.mobile-fullscreen #game-log {
+  max-height: 22vh !important;
+}
+/* Desktop fullscreen small tweaks */
+.desktop-fullscreen #game-area {
+  height: calc(100vh - 120px) !important;
+}
+.desktop-fullscreen .board {
+  height: 100% !important;
+}
+
+/* Flip card styles */
+.card-flip {
+  perspective: 1000px;
+}
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+}
+.card-flip.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+.card-front,
+.card-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 0.5rem;
+}
+.card-back {
+  transform: rotateY(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Game log sticky title and 3-line viewport */
+#game-log {
+  position: relative;
+}
+#game-log h3 {
+  position: sticky;
+  top: 0;
+  background: inherit;
+  padding-bottom: 6px;
+  z-index: 1;
+}
+#game-log-list {
+  max-height: calc(1.35em * 3);
+  overflow: hidden;
+}
+.spicy-mode .tile-chance {
+  border-color: #ff1493;
+  box-shadow: 0 0 12px #ff1493;
+}
+
+/* SPICY mode: animated flaming background */
+@keyframes spicy-flames {
+  0% {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  50% {
+    background-position: 0 -40px, 0 -80px, 0 -120px;
+  }
+  100% {
+    background-position: 0 0, 0 0, 0 0;
+  }
+}
+.spicy-mode {
+  /* layered radial gradients to simulate rising flames */
+  background: radial-gradient(
+        closest-side,
+        rgba(255, 170, 0, 0.15),
+        transparent 70%
+      )
+      50% 120%/140% 60% repeat-y,
+    radial-gradient(closest-side, rgba(255, 60, 0, 0.12), transparent 70%) 30%
+      130%/160% 80% repeat-y,
+    radial-gradient(closest-side, rgba(255, 255, 255, 0.06), transparent 70%)
+      70% 140%/120% 70% repeat-y,
+    #1b0e0e;
+  animation: spicy-flames 6s linear infinite;
+}
+
+/* Flaming title effect */
+@keyframes title-flicker {
+  0%,
+  100% {
+    text-shadow: 0 0 10px #ffae00, 0 0 20px #ff3b00, 0 0 30px #ff5200;
+    transform: translateY(0);
+  }
+  50% {
+    text-shadow: 0 0 16px #ffd000, 0 0 28px #ff6a00, 0 0 40px #ff1f00;
+    transform: translateY(-1px);
+  }
+}
+.spicy-mode #title {
+  color: #ffd34d !important;
+  text-shadow: none !important;
+  background: linear-gradient(180deg, #fff0a3 0%, #ffb703 40%, #ff3b00 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: title-flicker 1.6s ease-in-out infinite;
+}
+
+.spicy-mode #player-setup {
+  background-color: #2d1a1a;
+  border-color: #ff8a8a;
+}
+
+.spicy-mode .sidebar .bg-slate-800,
+.spicy-mode #player-info-cards .bg-slate-800,
+.spicy-mode #modal-content {
+  background-color: #2d1a1a;
+  border-color: #ff8a8a;
+}
+
+.spicy-mode .text-amber-400 {
+  color: #ffc107;
+}
+
+.spicy-mode .bg-pink-600 {
+  background-color: #ff4d4d;
+}
+
+.spicy-mode .border-pink-800 {
+  border-color: #cc0000;
+}
+
+.spicy-mode .bg-indigo-600 {
+  background-color: #ff6f00;
+}
+
+.spicy-mode .border-indigo-800 {
+  border-color: #cc5800;
+}
+
+/* Custom scrollbar for How to Play modal */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #f97316 #374151;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #f97316;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #ea580c;
+}
+
+/* Mobile Touch Optimizations */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Better mobile button interactions */
+@media (max-width: 640px) {
+  .touch-manipulation:active {
+    transform: scale(0.98);
+  }
+
+  /* Larger touch targets for mobile */
+  button,
+  select,
+  input {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Improve readability on small screens */
+  .arcade-font {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+button,
+select,
+input {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Improve modal backdrop on mobile */
+@media (max-width: 640px) {
+  #how-to-play-modal {
+    padding: 8px;
+  }
+
+  #how-to-play-modal > div {
+    max-height: calc(100vh - 16px);
+  }
+}
+
+/* Better mobile spacing for game elements */
+@media (max-width: 1024px) {
+  .board {
+    border-radius: 16px;
+    border-width: 3px;
+  }
+
+  .sidebar {
+    border-radius: 12px;
+  }
+}
+
+/* Additional mobile spacing improvements */
+@media (max-width: 640px) {
+  /* Increase spacing between sections in modal */
+  .rules-content section + section {
+    margin-top: 1.25rem;
+  }
+
+  /* Better spacing for modal content */
+  #how-to-play-modal .rules-content {
+    padding-top: 0.5rem;
+    padding-bottom: 1rem;
+  }
+
+  /* Improve spacing between game area elements */
+  #game-area .grid > div {
+    margin-bottom: 0.75rem;
+  }
+
+  /* Better spacing for player setup elements */
+  #player-setup form {
+    gap: 1rem;
+  }
+
+  /* Improve button spacing in player setup */
+  #player-setup .flex-col > div + div {
+    margin-top: 0.75rem;
+  }
+
+  /* Better spacing for player input cards */
+  #player-inputs > div {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Optimize text sizes for very small screens */
+@media (max-width: 375px) {
+  .arcade-font {
+    font-size: clamp(10px, 3vw, 14px);
+  }
+
+  h1 {
+    font-size: clamp(20px, 6vw, 24px);
+  }
+
+  h2 {
+    font-size: clamp(16px, 5vw, 20px);
+  }
+
+  h3 {
+    font-size: clamp(14px, 4vw, 18px);
+  }
+
+  /* Extra spacing for very small screens */
+  .rules-content section {
+    margin-bottom: 1.5rem !important;
+  }
+
+  #player-inputs {
+    gap: 0.75rem !important;
+  }
+}

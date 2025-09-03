@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VITOPOLY: The GPA Struggle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-900 text-slate-100">
+
+    <div class="container mx-auto p-2 sm:p-3 md:p-4 max-w-screen-2xl h-full" style="overflow-x:hidden;">
+        <header class="text-center mb-2 sm:mb-3 md:mb-4">
+            <h1 id="title" class="text-3xl sm:text-4xl md:text-5xl arcade-font text-emerald-400" style="text-shadow: 2px 2px #be185d;">VITOPOLY</h1>
+        </header>
+
+        <!-- Player Setup -->
+        <div id="player-setup" class="bg-slate-800 p-3 sm:p-4 md:p-6 lg:p-8 rounded-xl shadow-lg max-w-sm sm:max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto border-2 border-slate-700 h-[calc(100vh-100px)] sm:h-[calc(100vh-120px)] md:h-[calc(100vh-140px)] flex flex-col">
+            <h2 class="text-xl sm:text-2xl md:text-3xl arcade-font mb-4 sm:mb-5 md:mb-6 text-center text-amber-400">Player Setup</h2>
+
+            <!-- Top Controls -->
+            <div class="mb-4 sm:mb-5 md:mb-6">
+                <!-- Player Count and Spicy Mode Row -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-4 sm:mb-5">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <label for="player-count" class="text-sm sm:text-base md:text-lg font-semibold text-slate-200">Players:</label>
+                        <select id="player-count" class="bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 sm:px-4 sm:py-3 focus:ring-indigo-500 focus:border-indigo-500 text-sm sm:text-base touch-manipulation min-w-[80px] sm:min-w-[100px]">
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                            <option>6</option>
+                        </select>
+                    </div>
+                    <button id="spicy-mode-btn" class="arcade-font text-xs sm:text-sm bg-red-700 hover:bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-lg border-b-4 border-red-900 hover:border-red-800 transition-all duration-200 touch-manipulation" title="Toggle Spicy Mode">
+                        🌶️ Spicy: OFF
+                    </button>
+                </div>
+
+                <!-- How to Play Button -->
+                <div class="flex justify-center">
+                    <button id="how-to-play-btn" class="arcade-font text-xs sm:text-sm bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg border-b-4 border-amber-800 hover:border-amber-700 transition-all duration-200 touch-manipulation shadow-lg">
+                        📖 How to Play
+                    </button>
+                </div>
+            </div>
+
+            <!-- Player Input Form -->
+            <form id="setup-form" class="flex-1 flex flex-col min-h-0">
+                <div id="player-inputs" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6 overflow-auto pr-2 sm:pr-3 min-h-0 custom-scrollbar">
+                    <!-- Player input fields will be generated here -->
+                </div>
+
+                <!-- Submit Button -->
+                <div class="mt-4 sm:mt-5 md:mt-6 text-center">
+                     <button type="submit" class="arcade-font bg-pink-600 hover:bg-pink-500 text-white py-3 sm:py-4 px-6 sm:px-8 md:px-10 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg border-b-4 border-pink-800 hover:border-pink-700 text-sm sm:text-base md:text-lg touch-manipulation w-full sm:w-auto">
+                        🚀 Enter VIT
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Game Area -->
+        <div id="game-area" class="hidden h-[calc(100vh-100px)] sm:h-[calc(100vh-120px)] md:h-[calc(100vh-140px)]">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 items-stretch h-full">
+                <!-- Board Top (Mobile) -->
+                <div id="board-col" class="col-span-1 lg:col-span-8 h-full min-h-0 order-1">
+                    <div class="board" id="game-board" style="height:100%;">
+                        <!-- Pawns will be added here by JS -->
+                    </div>
+                </div>
+
+                <!-- Sidebar Bottom (Mobile) -->
+                <aside id="sidebar-col" class="col-span-1 lg:col-span-4 sidebar h-full min-h-0 order-2">
+                    <!-- Top Controls Row -->
+                    <div id="top-row" class="grid grid-cols-2 gap-3 sm:gap-4 sticky top-2 sm:top-4 auto-rows-fr mb-4 sm:mb-5 md:mb-6">
+                        <!-- Turn & Dice Section -->
+                        <div class="bg-slate-800 p-2 sm:p-3 md:p-4 rounded-lg shadow-md border-2 border-slate-700 flex flex-col min-h-[80px] sm:min-h-[90px] h-full">
+                            <div class="flex items-center justify-between mb-2 sm:mb-3">
+                                <p id="turn-indicator" class="arcade-font text-xs sm:text-sm md:text-base text-amber-400 leading-4 truncate">Player 1's Turn!</p>
+                                <div class="flex items-center gap-1 sm:gap-2">
+                                    <div id="dice-display" class="w-6 h-6 sm:w-8 sm:h-8 md:w-12 md:h-12 border-3 sm:border-4 border-slate-300 rounded-lg flex items-center justify-center bg-white transition-all shadow-inner text-[8px] sm:text-[10px] md:text-base"></div>
+                                </div>
+                            </div>
+                            <button id="roll-dice-btn" onclick="handlePlayerTurn()" class="arcade-font w-full bg-indigo-600 hover:bg-indigo-500 text-white py-1.5 sm:py-2 px-2 sm:px-3 md:px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg border-b-3 sm:border-b-4 border-indigo-800 hover:border-indigo-700 disabled:bg-slate-600 disabled:border-slate-700 disabled:cursor-not-allowed disabled:scale-100 text-[10px] sm:text-xs md:text-sm touch-manipulation" aria-label="Roll dice to move your pawn">
+                                🎲 Roll Dice
+                            </button>
+                        </div>
+
+                        <!-- Game Log Section -->
+                        <div id="game-log" class="bg-slate-800 p-2 sm:p-3 md:p-4 rounded-lg border-2 border-slate-700 h-full flex flex-col">
+                            <h3 id="game-log-title" class="arcade-font text-xs sm:text-sm md:text-base text-amber-400 mb-2 cursor-pointer flex-shrink-0">📜 Game Log</h3>
+                            <div class="relative flex-1 min-h-0">
+                                <div class="pointer-events-none absolute inset-x-0 top-0 h-2 bg-gradient-to-b from-slate-800 to-transparent"></div>
+                                <ul id="game-log-list" class="space-y-1 text-slate-300 text-[9px] sm:text-xs md:text-sm pr-1 h-full overflow-auto custom-scrollbar"></ul>
+                                <div class="pointer-events-none absolute inset-x-0 bottom-0 h-2 bg-gradient-to-t from-slate-800 to-transparent"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Player Info Cards -->
+                    <div id="player-info-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5 overflow-auto pr-2 sm:pr-3 max-h-[min(35dvh,calc(100vh-300px))] sm:max-h-[min(40dvh,calc(100vh-340px))] min-h-0 custom-scrollbar content-start">
+                        <!-- Player info cards will be generated here -->
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <!-- How to Play Modal -->
+    <div id="how-to-play-modal" class="fixed inset-0 bg-black bg-opacity-90 sm:bg-opacity-85 flex items-center justify-center p-2 sm:p-4 hidden z-50">
+        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-2 sm:border-4 border-gradient-to-r from-amber-400 to-pink-500 rounded-xl shadow-2xl p-3 sm:p-4 md:p-6 lg:p-8 max-w-sm sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] text-left transform scale-95 opacity-0 transition-all duration-300 relative overflow-hidden">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 opacity-5 sm:opacity-10">
+                <div class="absolute top-0 left-0 w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-pink-500 rounded-full blur-xl"></div>
+                <div class="absolute top-10 right-10 sm:top-20 sm:right-20 w-12 h-12 sm:w-18 sm:h-18 md:w-24 md:h-24 bg-emerald-500 rounded-full blur-xl"></div>
+                <div class="absolute bottom-5 left-5 sm:bottom-10 sm:left-10 w-10 h-10 sm:w-15 sm:h-15 md:w-20 md:h-20 bg-amber-500 rounded-full blur-xl"></div>
+            </div>
+
+            <div class="relative z-10">
+                <div class="flex justify-between items-center mb-3 sm:mb-4 md:mb-6">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <span class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl">🎮</span>
+                        <h2 class="arcade-font text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-amber-400" style="text-shadow: 2px 2px 0px #be185d, 4px 4px 0px #7c2d12;">VITOPOLY</h2>
+                        <span class="text-xl sm:text-2xl md:text-3xl">🎓</span>
+                    </div>
+                    <button id="close-how-to-play-modal" class="text-2xl sm:text-3xl md:text-4xl text-slate-400 hover:text-white hover:scale-110 transition-all duration-200 bg-slate-800 hover:bg-slate-700 rounded-full w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center touch-manipulation">&times;</button>
+                </div>
+                <div class="rules-content max-h-[calc(100vh-120px)] sm:max-h-[calc(100vh-140px)] overflow-y-auto pr-2 sm:pr-4 text-slate-200 text-sm sm:text-base custom-scrollbar">
+                    <!-- MISSION BRIEFING -->
+                    <section class="mb-5 sm:mb-7 md:mb-9 bg-gradient-to-r from-slate-800 to-slate-700 p-4 sm:p-5 md:p-7 rounded-lg border-2 border-slate-600">
+                        <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+                            <span class="text-2xl sm:text-3xl md:text-4xl">🎯</span>
+                            <h3 class="arcade-font text-lg sm:text-xl md:text-2xl text-pink-400 mb-0" style="text-shadow: 2px 2px 0px #be185d;">MISSION BRIEFING</h3>
+                        </div>
+                        <div class="bg-slate-900 p-4 sm:p-5 rounded border-l-4 border-amber-400">
+                            <p class="text-sm sm:text-base md:text-lg leading-relaxed mb-3">Welcome to <strong class="text-emerald-400">VITOPOLY</strong> - the ultimate digital battlefield of academic warfare!</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                <div class="flex items-center gap-2 sm:gap-3">
+                                    <span class="text-xl sm:text-2xl md:text-3xl">🏆</span>
+                                    <div>
+                                        <strong class="text-amber-400 text-sm sm:text-base">PRIMARY OBJECTIVE:</strong><br>
+                                        <span class="text-emerald-400 text-sm sm:text-base">Be the last student with GPA > 0</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 sm:gap-3">
+                                    <span class="text-xl sm:text-2xl md:text-3xl">💼</span>
+                                    <div>
+                                        <strong class="text-indigo-400 text-sm sm:text-base">ULTIMATE VICTORY:</strong><br>
+                                        <span class="text-indigo-400 text-sm sm:text-base">Secure a PPO and graduate!</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- GAME SETUP -->
+                    <section class="mb-5 sm:mb-7 md:mb-9 bg-gradient-to-r from-slate-800 to-slate-700 p-4 sm:p-5 md:p-7 rounded-lg border-2 border-slate-600">
+                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                            <span class="text-2xl sm:text-3xl md:text-4xl">⚙️</span>
+                            <h3 class="arcade-font text-lg sm:text-xl md:text-2xl text-cyan-400 mb-0" style="text-shadow: 2px 2px 0px #0e7490;">GAME SETUP</h3>
+                        </div>
+                        <div class="space-y-3 sm:space-y-4">
+                            <div class="bg-slate-900 p-3 sm:p-4 rounded">
+                                <strong class="text-cyan-400 text-sm sm:text-base">🎲 PLAYER COUNT:</strong> 2-6 players<br>
+                                <strong class="text-cyan-400 text-sm sm:text-base">🎯 BOARD SIZE:</strong> 100 tiles (10x10 grid)<br>
+                                <strong class="text-cyan-400 text-sm sm:text-base">⏰ TURN TIME:</strong> Roll dice and move your pawn
+                            </div>
+                            <div class="bg-gradient-to-r from-red-900 to-orange-900 p-3 sm:p-4 rounded border-2 border-red-500">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-xl sm:text-2xl">🌶️</span>
+                                    <strong class="text-orange-400 arcade-font text-sm sm:text-base">SPICY MODE</strong>
+                                </div>
+                                <p class="text-xs sm:text-sm">Toggle for hardcore VIT experience! Higher penalties, more frequent events, increased Flying Squad activity. <strong class="text-red-400">Only for the brave!</strong></p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- CORE MECHANICS -->
+                    <section class="mb-5 sm:mb-7 md:mb-9 bg-gradient-to-r from-slate-800 to-slate-700 p-4 sm:p-5 md:p-7 rounded-lg border-2 border-slate-600">
+                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                            <span class="text-2xl sm:text-3xl md:text-4xl">🧠</span>
+                            <h3 class="arcade-font text-lg sm:text-xl md:text-2xl text-purple-400 mb-0" style="text-shadow: 2px 2px 0px #9333ea;">CORE MECHANICS</h3>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                            <div class="bg-slate-900 p-3 sm:p-4 rounded-lg border-l-4 border-emerald-400">
+                                <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                                    <span class="text-xl sm:text-2xl md:text-3xl">🎓</span>
+                                    <h4 class="arcade-font text-base sm:text-lg md:text-xl text-emerald-400">GPA SYSTEM</h4>
+                                </div>
+                                <ul class="space-y-1 sm:space-y-2 text-xs sm:text-sm">
+                                    <li>• <strong class="text-emerald-400">Start:</strong> 8.0 GPA (healthy baseline)</li>
+                                    <li>• <strong class="text-red-400">Danger Zone:</strong> GPA ≤ 0 = DEBARRED!</li>
+                                    <li>• <strong class="text-amber-400">Win Condition:</strong> Reach tile 100 with GPA > 0</li>
+                                    <li>• <strong class="text-indigo-400">PPO Boost:</strong> Get internship + maintain GPA ≥8.5</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-slate-900 p-3 sm:p-4 rounded-lg border-l-4 border-amber-400">
+                                <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                                    <span class="text-xl sm:text-2xl md:text-3xl">📝</span>
+                                    <h4 class="arcade-font text-base sm:text-lg md:text-xl text-amber-400">CHIT SYSTEM</h4>
+                                </div>
+                                <ul class="space-y-1 sm:space-y-2 text-xs sm:text-sm">
+                                    <li>• <strong class="text-green-400">15% chance</strong> to find chits on regular tiles</li>
+                                    <li>• <strong class="text-emerald-400">Reward:</strong> Store for semester-end GPA boost</li>
+                                    <li>• <strong class="text-red-400">Risk:</strong> Flying Squad can catch you!</li>
+                                    <li>• <strong class="text-red-500">Penalty:</strong> -2.5 GPA (Normal) / -4.0 GPA (Spicy)</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-slate-900 p-3 sm:p-4 rounded-lg border-l-4 border-pink-400">
+                                <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                                    <span class="text-xl sm:text-2xl md:text-3xl">❤️</span>
+                                    <h4 class="arcade-font text-base sm:text-lg md:text-xl text-pink-400">RELATIONSHIPS</h4>
+                                </div>
+                                <ul class="space-y-1 sm:space-y-2 text-xs sm:text-sm">
+                                    <li>• <strong class="text-purple-400">22% chance</strong> on eligible tiles</li>
+                                    <li>• <strong class="text-pink-400">Hearts:</strong> Relationship strength indicator</li>
+                                    <li>• <strong class="text-cyan-400">Events:</strong> Unique story choices on Chance tiles</li>
+                                    <li>• <strong class="text-amber-400">Choices:</strong> Balance love vs academics</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-slate-900 p-3 sm:p-4 rounded-lg border-l-4 border-indigo-400">
+                                <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                                    <span class="text-xl sm:text-2xl md:text-3xl">💼</span>
+                                    <h4 class="arcade-font text-base sm:text-lg md:text-xl text-indigo-400">CAREER SYSTEM</h4>
+                                </div>
+                                <ul class="space-y-1 sm:space-y-2 text-xs sm:text-sm">
+                                    <li>• <strong class="text-indigo-400">Placement Tiles:</strong> 40, 60, 80, 100</li>
+                                    <li>• <strong class="text-cyan-400">Requirements:</strong> Tile ≥63 + GPA ≥8.5</li>
+                                    <li>• <strong class="text-green-400">Internship:</strong> 30% chance on placement tiles</li>
+                                    <li>• <strong class="text-emerald-400">PPO:</strong> Internship + 5 more turns = VICTORY!</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- TILE TYPES -->
+                    <section class="mb-5 sm:mb-7 md:mb-9 bg-gradient-to-r from-slate-800 to-slate-700 p-4 sm:p-5 md:p-7 rounded-lg border-2 border-slate-600">
+                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                            <span class="text-2xl sm:text-3xl md:text-4xl">🎯</span>
+                            <h3 class="arcade-font text-lg sm:text-xl md:text-2xl text-orange-400 mb-0" style="text-shadow: 2px 2px 0px #ea580c;">TILE TYPES</h3>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 sm:gap-4">
+                            <div class="bg-slate-900 p-2 sm:p-3 md:p-4 rounded-lg text-center border-2 border-green-500">
+                                <div class="tile tile-start mx-auto w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 !text-xs mb-1 sm:mb-2">START</div>
+                                <strong class="text-green-400 text-xs sm:text-sm">START</strong><br>
+                                <span class="text-xs text-slate-400">Your journey begins at 8.0 GPA!</span>
+                            </div>
+                            <div class="bg-slate-900 p-2 sm:p-3 md:p-4 rounded-lg text-center border-2 border-blue-500">
+                                <div class="tile tile-year2 mx-auto w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 !text-xs mb-1 sm:mb-2">32</div>
+                                <strong class="text-blue-400 text-xs sm:text-sm">COURSE TILES</strong><br>
+                                <span class="text-xs text-slate-400">Regular academic tiles</span>
+                            </div>
+                            <div class="bg-slate-900 p-2 sm:p-3 md:p-4 rounded-lg text-center border-2 border-purple-500">
+                                <div class="tile tile-chance mx-auto w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 !text-lg sm:!text-xl mb-1 sm:mb-2">?</div>
+                                <strong class="text-purple-400 text-xs sm:text-sm">CHANCE</strong><br>
+                                <span class="text-xs text-slate-400">Random campus events!</span>
+                            </div>
+                            <div class="bg-slate-900 p-2 sm:p-3 md:p-4 rounded-lg text-center border-2 border-red-500">
+                                <div class="tile tile-semester-end mx-auto w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 !text-xs mb-1 sm:mb-2">SEM</div>
+                                <strong class="text-red-400 text-xs sm:text-sm">SEMESTER END</strong><br>
+                                <span class="text-xs text-slate-400">Cash in chits for GPA boost!</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 sm:mt-4 bg-slate-900 p-3 sm:p-4 rounded-lg">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xl sm:text-2xl">⭐</span>
+                                <strong class="text-amber-400 text-sm sm:text-base">SPECIAL TILES:</strong>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+                                <div>
+                                    <strong class="text-emerald-400">GPA BOOST TILES:</strong> 25, 50, 75, 100<br>
+                                    <span class="text-slate-400">+0.5 GPA automatically</span>
+                                </div>
+                                <div>
+                                    <strong class="text-indigo-400">PLACEMENT TILES:</strong> 40, 60, 80, 100<br>
+                                    <span class="text-slate-400">Chance for internship/PPO</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- CHANCE EVENTS -->
+                    <section class="mb-5 sm:mb-7 md:mb-9 bg-gradient-to-r from-slate-800 to-slate-700 p-4 sm:p-5 md:p-7 rounded-lg border-2 border-slate-600">
+                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                            <span class="text-2xl sm:text-3xl md:text-4xl">🎲</span>
+                            <h3 class="arcade-font text-lg sm:text-xl md:text-2xl text-yellow-400 mb-0" style="text-shadow: 2px 2px 0px #ca8a04;">CHANCE EVENTS</h3>
+                        </div>
+                        <div class="bg-slate-900 p-3 sm:p-4 rounded-lg">
+                            <p class="text-xs sm:text-sm mb-3 sm:mb-4 text-slate-300">Random events that can boost or hinder your academic journey:</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">🎭</span>
+                                        <span><strong class="text-red-400">Club Drama:</strong> -0.3 GPA</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">🏆</span>
+                                        <span><strong class="text-green-400">Club Success:</strong> +0.3 GPA</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">😴</span>
+                                        <span><strong class="text-red-400">Bunked Lectures:</strong> -0.2 GPA</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">💔</span>
+                                        <span><strong class="text-red-400">Friend's Breakup:</strong> -0.2 GPA</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">💡</span>
+                                        <span><strong class="text-red-400">Powercut:</strong> -0.2 GPA</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">🍲</span>
+                                        <span><strong class="text-green-400">Mom's Meal:</strong> +0.2 GPA</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">🆔</span>
+                                        <span><strong class="text-red-400">Forgot ID:</strong> -0.2 GPA + Skip Turn</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">🤒</span>
+                                        <span><strong class="text-amber-400">Faked Sick:</strong> Dice-based outcome</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">👨‍👩‍👧‍👦</span>
+                                        <span><strong class="text-red-400">Family Function:</strong> -0.3 GPA</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">📉</span>
+                                        <span><strong class="text-red-400">Late Night Out:</strong> -0.4 GPA</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">🏍️</span>
+                                        <span><strong class="text-red-400">Rash Driving:</strong> -0.3 GPA + Skip Turn</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">🚨</span>
+                                        <span><strong class="text-red-400">Hostel Raid:</strong> -0.3 GPA</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">🎂</span>
+                                        <span><strong class="text-green-400">Hostel Birthday:</strong> +0.2 GPA</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">📚</span>
+                                        <span><strong class="text-green-400">Group Study:</strong> +0.3 GPA</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">🦟</span>
+                                        <span><strong class="text-red-400">Dengue:</strong> -0.4 GPA</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-lg sm:text-xl">📝</span>
+                                        <span><strong class="text-amber-400">ReFAT:</strong> Dice-based outcome</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- RELATIONSHIP EVENTS -->
+                    <section class="mb-5 sm:mb-7 md:mb-9 bg-gradient-to-r from-slate-800 to-slate-700 p-4 sm:p-5 md:p-7 rounded-lg border-2 border-slate-600">
+                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                            <span class="text-2xl sm:text-3xl md:text-4xl">💕</span>
+                            <h3 class="arcade-font text-lg sm:text-xl md:text-2xl text-rose-400 mb-0" style="text-shadow: 2px 2px 0px #e11d48;">RELATIONSHIP EVENTS</h3>
+                        </div>
+                        <div class="bg-slate-900 p-3 sm:p-4 rounded-lg">
+                            <p class="text-xs sm:text-sm mb-3 sm:mb-4 text-slate-300">When you have hearts and land on Chance tiles, face relationship dilemmas:</p>
+                            <div class="space-y-2 sm:space-y-3">
+                                <div class="bg-slate-800 p-2 sm:p-3 rounded border-l-4 border-red-500">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-lg sm:text-xl">💥</span>
+                                        <strong class="text-red-400 text-sm sm:text-base">Relationship Fight:</strong>
+                                    </div>
+                                    <span class="text-xs text-slate-400">Choose: Fix fight (-1.0 GPA, +1 heart) or Focus on exam (+1.0 GPA, -1 heart)</span>
+                                </div>
+                                <!-- <div class="bg-slate-800 p-2 sm:p-3 rounded border-l-4 border-amber-500">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-lg sm:text-xl">🌟</span>
+                                        <strong class="text-amber-400 text-sm sm:text-base">Partner Motivates You:</strong>
+                                    </div>
+                                    <span class="text-xs text-slate-400">Choose: Study together (+1.0 GPA, -1 heart) or Watch reels (-1.0 GPA, +1 heart)</span>
+                                </div> -->
+                                <div class="bg-slate-800 p-2 sm:p-3 rounded border-l-4 border-pink-500">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-lg sm:text-xl">🌹</span>
+                                        <strong class="text-pink-400 text-sm sm:text-base">Date:</strong>
+                                    </div>
+                                    <span class="text-xs text-slate-400">Choose: Go for date (Skip 1 turn, +1 heart) or Decline (-1 heart)</span>
+                                </div>
+                                <div class="bg-slate-800 p-2 sm:p-3 rounded border-l-4 border-purple-500">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-lg sm:text-xl">💞</span>
+                                        <strong class="text-purple-400 text-sm sm:text-base">Anniversary Plan:</strong>
+                                    </div>
+                                    <span class="text-xs text-slate-400">Choose: Plan special (-0.5 GPA, +2 hearts) or Forget (-2 hearts)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- DANGER ZONES -->
+                    <section class="mb-5 sm:mb-7 md:mb-9 bg-gradient-to-r from-red-900 to-orange-900 p-4 sm:p-5 md:p-7 rounded-lg border-2 border-red-500">
+                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                            <span class="text-2xl sm:text-3xl md:text-4xl">⚠️</span>
+                            <h3 class="arcade-font text-lg sm:text-xl md:text-2xl text-red-400 mb-0" style="text-shadow: 2px 2px 0px #dc2626;">DANGER ZONES</h3>
+                        </div>
+
+                        <div class="space-y-4 sm:space-y-6">
+                            <!-- Flying Squad -->
+                            <div class="bg-slate-900 p-3 sm:p-4 rounded-lg border-l-4 border-red-500">
+                                <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                                    <span class="text-2xl sm:text-3xl md:text-4xl">🚔</span>
+                                    <h4 class="arcade-font text-base sm:text-lg md:text-xl text-red-400">FLYING SQUAD</h4>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+                                    <div>
+                                        <strong class="text-red-400">Trigger:</strong> After tile 10<br>
+                                        <strong class="text-red-400">Normal Mode:</strong> 12% chance<br>
+                                        <strong class="text-red-400">Spicy Mode:</strong> 25% chance
+                                    </div>
+                                    <div>
+                                        <strong class="text-red-400">Effect:</strong> Searches ALL players<br>
+                                        <strong class="text-red-400">Penalty:</strong> -2.5 GPA per chit (Normal)<br>
+                                        <strong class="text-red-400">Penalty:</strong> -4.0 GPA per chit (Spicy)
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Big Snake -->
+                            <div class="bg-slate-900 p-3 sm:p-4 rounded-lg border-l-4 border-orange-500">
+                                <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                                    <span class="text-2xl sm:text-3xl md:text-4xl">🐍</span>
+                                    <h4 class="arcade-font text-base sm:text-lg md:text-xl text-orange-400">BIG SNAKE</h4>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+                                    <div>
+                                        <strong class="text-orange-400">Trigger:</strong> Tile ≥63<br>
+                                        <strong class="text-orange-400">Normal Mode:</strong> 0.1% chance<br>
+                                        <strong class="text-orange-400">Spicy Mode:</strong> 0.5% chance
+                                    </div>
+                                    <div>
+                                        <strong class="text-orange-400">Effect:</strong> Sent back to tile 63<br>
+                                        <strong class="text-orange-400">Penalty:</strong> GPA capped at 8.5<br>
+                                        <strong class="text-orange-400">Loss:</strong> Internship/PPO progress
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SEMESTER END & WINNING -->
+                    <section class="mb-5 sm:mb-7 md:mb-9 bg-gradient-to-r from-emerald-900 to-green-900 p-4 sm:p-5 md:p-7 rounded-lg border-2 border-emerald-500">
+                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                            <span class="text-2xl sm:text-3xl md:text-4xl">🎓</span>
+                            <h3 class="arcade-font text-lg sm:text-xl md:text-2xl text-emerald-400 mb-0" style="text-shadow: 2px 2px 0px #16a34a;">SEMESTER END & VICTORY</h3>
+                        </div>
+
+                        <div class="space-y-3 sm:space-y-4">
+                            <div class="bg-slate-900 p-3 sm:p-4 rounded-lg">
+                                <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                                    <span class="text-xl sm:text-2xl md:text-3xl">📊</span>
+                                    <strong class="text-emerald-400 arcade-font text-sm sm:text-base md:text-lg">SEMESTER END PROCESSING</strong>
+                                </div>
+                                <ul class="space-y-1 sm:space-y-2 text-xs sm:text-sm">
+                                    <li><strong class="text-amber-400">Trigger Tiles:</strong> 13, 25, 38, 50, 63, 75, 88, 100</li>
+                                    <li><strong class="text-emerald-400">Chit Redemption:</strong> Each chit = GPA boost (varies by count)</li>
+                                    <li><strong class="text-indigo-400">Relationship Bonus:</strong> Hearts can influence GPA changes</li>
+                                    <li><strong class="text-cyan-400">Dice Roll:</strong> Random semester outcome affects final GPA</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-gradient-to-r from-yellow-900 to-amber-900 p-3 sm:p-4 rounded-lg border-2 border-yellow-500">
+                                <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                                    <span class="text-xl sm:text-2xl md:text-3xl">🏆</span>
+                                    <strong class="text-yellow-400 arcade-font text-sm sm:text-base">WIN CONDITIONS</strong>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+                                    <div class="bg-slate-800 p-2 sm:p-3 rounded">
+                                        <strong class="text-emerald-400 text-xs sm:text-sm">CLASSIC VICTORY:</strong><br>
+                                        Reach tile 100 with GPA > 0<br>
+                                        <span class="text-slate-400">Last student standing wins!</span>
+                                    </div>
+                                    <div class="bg-slate-800 p-2 sm:p-3 rounded">
+                                        <strong class="text-indigo-400 text-xs sm:text-sm">PPO VICTORY:</strong><br>
+                                        Secure PPO + survive 5 more turns<br>
+                                        <span class="text-slate-400">Ultimate academic triumph!</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- PRO TIPS -->
+                    <section class="mb-5 sm:mb-7 md:mb-9 bg-gradient-to-r from-purple-900 to-indigo-900 p-4 sm:p-5 md:p-7 rounded-lg border-2 border-purple-500">
+                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                            <span class="text-2xl sm:text-3xl md:text-4xl">💡</span>
+                            <h3 class="arcade-font text-lg sm:text-xl md:text-2xl text-purple-400 mb-0" style="text-shadow: 2px 2px 0px #9333ea;">PRO TIPS</h3>
+                        </div>
+                        <div class="bg-slate-900 p-3 sm:p-4 rounded-lg">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-xs sm:text-sm">
+                                <div class="space-y-2 sm:space-y-3">
+                                    <div class="flex items-start gap-2">
+                                        <span class="text-lg sm:text-xl mt-1">🎯</span>
+                                        <span><strong class="text-emerald-400">Balance is key:</strong> Don't neglect academics for relationships!</span>
+                                    </div>
+                                    <div class="flex items-start gap-2">
+                                        <span class="text-lg sm:text-xl mt-1">📝</span>
+                                        <span><strong class="text-amber-400">Strategic chits:</strong> Save them for semester ends, but don't get caught!</span>
+                                    </div>
+                                    <div class="flex items-start gap-2">
+                                        <span class="text-lg sm:text-xl mt-1">💼</span>
+                                        <span><strong class="text-indigo-400">Career focus:</strong> Aim for placement tiles early to secure PPOs.</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-2 sm:space-y-3">
+                                    <div class="flex items-start gap-2">
+                                        <span class="text-lg sm:text-xl mt-1">❤️</span>
+                                        <span><strong class="text-pink-400">Relationships:</strong> Can boost GPA if managed well.</span>
+                                    </div>
+                                    <div class="flex items-start gap-2">
+                                        <span class="text-lg sm:text-xl mt-1">⚡</span>
+                                        <span><strong class="text-cyan-400">GPA Boost tiles:</strong> Use them to recover from setbacks.</span>
+                                    </div>
+                                    <div class="flex items-start gap-2">
+                                        <span class="text-lg sm:text-xl mt-1">🏃</span>
+                                        <span><strong class="text-orange-400">Stay vigilant:</strong> Flying Squad and Big Snake lurk everywhere!</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- CALL TO ACTION -->
+                    <section class="text-center bg-gradient-to-r from-slate-900 to-slate-800 p-4 sm:p-5 md:p-7 rounded-lg border-2 border-slate-600">
+                        <div class="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                            <span class="text-2xl sm:text-3xl md:text-4xl">🚀</span>
+                            <h3 class="arcade-font text-lg sm:text-xl md:text-2xl text-cyan-400 mb-0">Ready to Conquer VIT?</h3>
+                            <span class="text-xl sm:text-2xl md:text-3xl">🎓</span>
+                        </div>
+                        <p class="text-sm sm:text-base md:text-lg text-slate-300 mb-3 sm:mb-4">Master the art of academic survival and emerge victorious!</p>
+                        <div class="flex items-center justify-center gap-4 text-xs sm:text-sm text-slate-400">
+                            <span>🎮 May the best student win!</span>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Event Modal -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden opacity-0 z-50" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-description">
+            <div id="modal-emoji" class="mb-4"></div>
+        <div id="modal-content" class="bg-slate-800 border-4 border-pink-600 rounded-xl shadow-2xl p-6 md:p-8 max-w-lg w-full text-center transform scale-90 opacity-0">
+            <h2 id="modal-title" class="arcade-font mb-2 text-amber-400" style="font-size:clamp(18px,6vw,28px);"></h2>
+            <div id="modal-event-emoji" class="mb-2" style="font-size:clamp(22px,7vw,32px);"></div>
+            <p id="modal-description" class="text-slate-300 mb-5" style="font-size:clamp(14px,4.6vw,18px);"></p>
+            <p id="modal-gpa-change" class="arcade-font mb-6" style="font-size:clamp(22px,8vw,36px);"></p>
+            <button id="modal-button" class="arcade-font bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 px-6 rounded-lg w-full transition-colors border-b-4 border-emerald-700 hover:border-emerald-800" style="font-size:clamp(14px,4.8vw,18px);" aria-label="Continue to next game action">Continue</button>
+        </div>
+    </div>
+
+    <!-- Emoji Picker Modal -->
+    <div id="emoji-modal" class="fixed inset-0 bg-black bg-opacity-80 flex-col items-center justify-center p-4 hidden" style="z-index: 70; display:none;">
+        <div class="bg-slate-800 border-4 border-amber-400 rounded-xl shadow-2xl p-6 max-w-2xl w-full text-center relative">
+            <button id="emoji-close" class="absolute top-2 right-2 text-xl px-2 py-1 bg-slate-700 rounded">✖</button>
+            <h2 class="text-2xl arcade-font mb-4 text-amber-400">Choose Your Emoji</h2>
+            <input type="text" id="emoji-search" placeholder="Search for an emoji..." class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 mb-4">
+            <div id="emoji-grid" class="grid grid-cols-6 sm:grid-cols-8 gap-2 h-64 overflow-y-auto no-scrollbar">
+                <!-- Emojis will be populated here -->
+            </div>
+        </div>
+    </div>
+
+<script src="main.js"></script>
+</body>
+</html>
