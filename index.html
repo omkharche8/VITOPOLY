@@ -18,7 +18,7 @@
         </header>
 
         <!-- Player Setup -->
-        <div id="player-setup" class="bg-slate-800 p-3 sm:p-4 md:p-6 lg:p-8 rounded-xl shadow-lg max-w-sm sm:max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto border-2 border-slate-700 h-[calc(100vh-100px)] sm:h-[calc(100vh-120px)] md:h-[calc(100vh-140px)] flex flex-col">
+        <div id="player-setup" class="bg-slate-800 p-3 sm:p-4 md:p-6 lg:p-8 rounded-xl shadow-lg max-w-sm sm:max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto border-2 border-slate-700 h-[calc(100vh-140px)] sm:h-[calc(100vh-160px)] md:h-[calc(100vh-180px)] flex flex-col">
             <h2 class="text-xl sm:text-2xl md:text-3xl arcade-font mb-4 sm:mb-5 md:mb-6 text-center text-amber-400">Player Setup</h2>
 
             <!-- Top Controls -->
@@ -64,7 +64,7 @@
         </div>
 
         <!-- Game Area -->
-        <div id="game-area" class="hidden h-[calc(100vh-100px)] sm:h-[calc(100vh-120px)] md:h-[calc(100vh-140px)]">
+        <div id="game-area" class="hidden h-[calc(100vh-140px)] sm:h-[calc(100vh-160px)] md:h-[calc(100vh-180px)]">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 items-stretch h-full">
                 <!-- Board Top (Mobile) -->
                 <div id="board-col" class="col-span-1 lg:col-span-8 h-full min-h-0 order-1">
@@ -580,6 +580,22 @@
             </div>
         </div>
     </div>
+
+    <!-- Footer Credits -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-sm border-t border-slate-700 py-2 px-4 z-40">
+        <div class="container mx-auto text-center">
+            <p class="text-xs sm:text-sm md:text-base arcade-font text-slate-300">
+                <span class="text-emerald-400">made with</span>
+                <span class="text-red-500 animate-pulse">❤️</span>
+                <span class="text-amber-400">-</span>
+                <span class="text-pink-400 font-bold">bruhmantri</span>
+                <span class="text-slate-400">•</span>
+                <span class="text-cyan-400 font-bold">1ronman</span>
+                <span class="text-slate-400">•</span>
+                <span class="text-purple-400 font-bold">aaronwayne</span>
+            </p>
+        </div>
+    </footer>
 
 <script src="main.js"></script>
 </body>
